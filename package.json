@@ -1,12 +1,35 @@
 {
-  "name": "@mands/salt-desktop",
+  "name": "salt-desktop",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "./src/electron.js",
   "keywords": [],
   "author": "Aftab Alam <hello@aalam.in> (https://aalam.in)",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public",
+    "electron": "run-s build pure-electron",
+    "pure-electron": "electron .",
+    "electron-dev": "run-p dev pure-electron-dev",
+    "pure-electron-dev": "NODE_ENV=development electron .",
+    "dist-darwin": "run-s build pure-dist-darwin",
+    "pure-dist-darwin": "electron-builder --dir --mac --config electron-builder.yml"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.0",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "chokidar": "^3.3.1",
+    "electron": "^8.0.0",
+    "electron-builder": "^22.3.2",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.20.0",
+    "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-svelte": "^5.0.3",
+    "rollup-plugin-terser": "^5.1.2",
+    "svelte": "^3.0.0"
+  },
+  "dependencies": {
+    "sirv-cli": "^0.4.4"
+  }
 }

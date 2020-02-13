@@ -1,0 +1,9 @@
+appId: "in.aalam.salt"
+
+# Package app code into a asar archive. Set to false to debug issues.
+asar: true
+
+# Mac OS configuration
+mac:
+ icon: "public/icons/my_app.icns"
+ category: "public.app-category.utilities"
