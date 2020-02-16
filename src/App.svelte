@@ -1,9 +1,24 @@
 <script>
+	import { onMount } from 'svelte';
+	const { electron } = window;
 	export let name;
+
+	function onClick() {
+		electron.send("toMain", {
+			cmd: "DIR_READ",
+			data: {
+
+			}
+		});
+	}
+
+	electron.receive("fromMain", (data) => {
+		console.log(data);
+	});
 </script>
 
 <main>
-	<h1>Hello {name}!!</h1>
+	<h1 on:click={onClick}>Hello {name}!!</h1>
 	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
 </main>
 

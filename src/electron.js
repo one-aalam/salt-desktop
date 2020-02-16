@@ -1,6 +1,12 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path')
-
+const {
+    app,
+    BrowserWindow,
+    dialog,
+    ipcMain
+} = require('electron');
+const path = require('path');
+const recursivelyReadDir = require("recursive-readdir");
+process.env.ELECTRON_ENABLE_SECURITY_WARNINGS = false;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -10,8 +16,13 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 900,
         height: 680,
+        webPreferences: {
+            nodeIntegration: false, // is default value after Electron v5
+            contextIsolation: true, // protect against prototype pollution
+            enableRemoteModule: false, // turn off remote
+            preload: path.join(__dirname,  'preload.js') // use a preload script
+        }
     });
-
     mainWindow.loadURL(`file://${path.join(__dirname, '../public/index.html')}`);
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -19,13 +30,17 @@ function createWindow() {
             watcher.close();
         }
     });
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
     let watcher;
     if (mode === 'development') {
         watcher = require('chokidar').watch(path.join(__dirname, '../public/build'), { ignoreInitial: true });
         watcher.on('change', () => {
-        mainWindow.reload();
+            mainWindow.reload();
         });
     }
+    // mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
@@ -48,4 +63,27 @@ app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
     }
+});
+
+const getMediaDir = async() => {
+    const files = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select a media folder',
+      properties: ['openDirectory', 'multiSelections'],
+      filters: [
+        { name: 'Media Files', extensions: ['mp4', 'mkv', 'mov'] }
+      ]
+    });
+    const allFiles = await Promise.all(files.filePaths.map((filePath) => recursivelyReadDir(filePath)));
+    mainWindow.webContents.send("fromMain", {
+        cmd: 'DIR_READ',
+        data: {
+            files: allFiles,
+            selections: files.filePaths
+        }
+    });
+};
+
+ipcMain.on("toMain", (event, { cmd, data }) => {
+    console.log(cmd, data);
+    getMediaDir();
 });

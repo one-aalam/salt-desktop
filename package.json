@@ -30,6 +30,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "recursive-readdir": "^2.2.2",
     "sirv-cli": "^0.4.4"
   }
 }
