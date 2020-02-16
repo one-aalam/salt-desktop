@@ -1,7 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
 	const { electron } = window;
-	export let name;
+	import Video from './components/Video.svelte';
+	export let files;
+	let playFile;
 
 	function onClick() {
 		electron.send("toMain", {
@@ -12,14 +14,28 @@
 		});
 	}
 
-	electron.receive("fromMain", (data) => {
-		console.log(data);
+	function playTheFile(file) {
+		console.log(file);
+		playFile = file;
+	}
+
+	electron.receive("fromMain", ({ cmd, data}) => {
+		files = data.files[0];
 	});
 </script>
 
 <main>
-	<h1 on:click={onClick}>Hello {name}!!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<h1 on:click={onClick}>Choose folder</h1>
+	<Video src={playFile}/>
+	<ul>
+	{#if files}
+		{#each files as file}
+			<li on:click={ () => playTheFile(file) }>
+				{file}
+			</li>
+		{/each}
+	{/if}
+</ul>
 </main>
 
 <style>
